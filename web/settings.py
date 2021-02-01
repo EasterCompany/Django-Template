@@ -15,7 +15,6 @@ import os
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
 
@@ -25,24 +24,31 @@ SECRET_KEY = 'waljnbxv_11zs+z*8j06s6km!!&^sb(rpmb3qms#cu%1bm9sd%'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
-
+ALLOWED_HOSTS = [
+    '127.0.0.1',
+    'localhost',
+    '.easter.company',
+    '.eastercompany.eu.pythonanywhere.com'
+]
 
 # Application definition
 
 INSTALLED_APPS = [
+    # Django Apps
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -54,7 +60,7 @@ ROOT_URLCONF = 'web.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'client', 'build')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -99,22 +105,28 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/2.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
-
+LANGUAGE_CODE = 'en-gb'
 TIME_ZONE = 'UTC'
-
 USE_I18N = True
-
 USE_L10N = True
-
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 STATIC_URL = '/static/'
+STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, 'client', 'build', 'static'),
+    os.path.join(BASE_DIR, 'data'),
+)
+
+# Solves cors issue while serving React Apps
+# https://blog.usejournal.com/serving-react-and-django-together-2089645046e4
+CORS_ORIGIN_ALLOW_ALL = False
+CORS_ORIGIN_WHITELIST = (
+    'http://localhost:8000',
+    'http://localhost:8100'
+)

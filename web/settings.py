@@ -1,74 +1,46 @@
+# Standard Library Imports
 import os
+from json import loads
 
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
+SERVER_FILE = open(BASE_DIR + '/.config/server.json')
+SERVER_DATA = loads(SERVER_FILE.read())
+SERVER_FILE.close()
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'waljnbxv_11zs+z*8j06s6km!!&^sb(rpmb3qms#cu%1bm9sd%'
+CLIENT_FILE = open(BASE_DIR + '/.config/clients.json')
+CLIENT_DATA = loads(CLIENT_FILE.read())
+CLIENT_FILE.close()
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = SERVER_DATA['DEBUG']
+LANGUAGE_CODE = SERVER_DATA['LANGUAGE_CODE']
+TIME_ZONE = SERVER_DATA['TIME_ZONE']
+USE_I18N = True
+USE_L10N = True
+USE_TZ = True
 
-ALLOWED_HOSTS = [
-    '127.0.0.1',
-    'localhost',
-    '.easter.company',
-    '.eastercompany.eu.pythonanywhere.com'
-]
+try:
+    SECRET_KEY_FILE = open(BASE_DIR + '/.config/secret.json')
+    SECRET_KEY = loads(SECRET_KEY_FILE.read())['SECRET_KEY']
+    SECRET_KEY_FILE.close()
+except:
+    SECRET_KEY = 'no secret key'
 
-# Application definition
-
-INSTALLED_APPS = [
-    # Django Apps
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'corsheaders',
-    # Local Apps
-    'api',
-    'core'
-]
-
-MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-]
-
-ROOT_URLCONF = 'web.urls'
-
+ALLOWED_HOSTS = SERVER_DATA['ALLOWED_HOSTS']
+INSTALLED_APPS = SERVER_DATA['INSTALLED_APPS']
+MIDDLEWARE = SERVER_DATA['MIDDLEWARE']
+ROOT_URLCONF = SERVER_DATA['ROOT_URLCONF']
+WSGI_APPLICATION = SERVER_DATA['WSGI_APPLICATION']
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'client', 'build')],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
-            ],
-        },
+        'BACKEND': SERVER_DATA['BACKEND_TEMPLATE'],
+        'DIRS': [
+            os.path.join(BASE_DIR, 'clients')
+        ],
+        'APP_DIRS': SERVER_DATA['APP_DIRS_TEMPLATE'],
+        'OPTIONS': SERVER_DATA['OPTIONS_TEMPLATE']
     },
 ]
-
-WSGI_APPLICATION = 'web.wsgi.application'
-
-
-# Database
-# https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
 DATABASES = {
     'default': {
@@ -76,10 +48,6 @@ DATABASES = {
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
-
-
-# Password validation
-# https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -96,28 +64,16 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-# Internationalization
-# https://docs.djangoproject.com/en/2.2/topics/i18n/
+STATIC_URL = SERVER_DATA['STATIC_URL']
+STATIC_ROOT = SERVER_DATA['STATIC_ROOT']
+STATICFILES_DIRS = [
+    CLIENT_DATA[client]['path'] + '/build/static' for client in CLIENT_DATA
+]
 
-LANGUAGE_CODE = 'en-gb'
-TIME_ZONE = 'UTC'
-USE_I18N = True
-USE_L10N = True
-USE_TZ = True
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/2.2/howto/static-files/
-
-STATIC_URL = '/static/'
-STATICFILES_DIRS = (
-    os.path.join(BASE_DIR, 'client', 'build', 'static'),
-    os.path.join(BASE_DIR, 'data'),
-)
-
-# Solves cors issue while serving React Apps
-# https://blog.usejournal.com/serving-react-and-django-together-2089645046e4
-CORS_ORIGIN_ALLOW_ALL = False
+CORS_ORIGIN_ALLOW_ALL = SERVER_DATA['CORS_ORIGIN_ALLOW_ALL']
 CORS_ORIGIN_WHITELIST = (
     'http://localhost:8000',
-    'http://localhost:8100'
+    'http://localhost:8100',
+    'http://localhost:8105',
+    'http://localhost:45678' # REACT SNAP
 )
